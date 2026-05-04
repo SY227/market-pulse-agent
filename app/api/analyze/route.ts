@@ -433,21 +433,6 @@ function buildWorkflow(
   return buildWorkflowTrace(notes, limitedSteps);
 }
 
-function assertValidationMoveFit(result: Partial<AnalysisResponse>, websiteContext: WebsiteContext) {
-  const moveType = result.nextValidationMove?.type?.trim().toLowerCase() || "";
-
-  if (
-    moveType === "customer interview sprint" &&
-    websiteContext.relevantPageCount >= 3 &&
-    websiteContext.averageRelevanceScore >= 28 &&
-    websiteContext.maxDirectSupportScore >= 24
-  ) {
-    throw new Error(
-      "Gemini returned an over-generic validation move. Choose a sharper market-facing test instead of customer interviews.",
-    );
-  }
-}
-
 async function generateWithRetries<T>(runner: () => Promise<T>) {
   let lastError: unknown;
 
@@ -490,7 +475,6 @@ async function generateStructuredAnalysis(
 
       const parsed = parseModelResponse(response.text || "{}");
       assertModelAnalysisShape(parsed);
-      assertValidationMoveFit(parsed, websiteContext);
 
       return {
         parsed,
@@ -520,7 +504,6 @@ async function generateStructuredAnalysis(
 
     const parsed = parseModelResponse(response.text || "{}");
     assertModelAnalysisShape(parsed);
-    assertValidationMoveFit(parsed, websiteContext);
     return parsed;
   });
 
